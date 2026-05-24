@@ -1,0 +1,26 @@
+{
+  "name": "FunQuiz ⚡",
+  "short_name": "FunQuiz",
+  "description": "Fun quiz app - Test your brain, beat the clock!",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a2e",
+  "theme_color": "#ff6b35",
+  "icons": [
+    {
+      "src": "img.jpg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img.jpg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "education"],
+  "lang": "en"
+}

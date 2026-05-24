@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FunQuiz" />
+    <meta name="theme-color" content="#ff6b35" />
+    <meta name="description" content="Fun quiz app - Test your brain, beat the clock!" />
+
+    <title>FunQuiz ⚡</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- Apple Touch Icons (inline SVG converted to data URI for single-file fallback) -->
+    <link rel="apple-touch-icon" href="img.jpg" />
+
+    <!-- Bootstrap -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        :root {
+            --orange: #ff6b35;
+            --orange2: #ff9e53;
+            --violet: #6c63ff;
+            --cyan: #06b6d4;
+            --gold: #FFD700;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --card-bg: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.13);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 45%, #0f3460 100%);
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── INSTALL BANNER ── */
+        #install-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: linear-gradient(135deg, #ff6b35, #6c63ff);
+            padding: 12px 16px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+            animation: slideDown .4s ease;
+        }
+
+        #install-banner.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .install-text {
+            color: #fff;
+            font-family: 'Fredoka One';
+            font-size: 15px;
+            flex: 1;
+        }
+
+        .install-text span {
+            font-family: 'Nunito';
+            font-size: 12px;
+            font-weight: 700;
+            display: block;
+            opacity: .85;
+        }
+
+        .install-btn {
+            background: #fff;
+            color: var(--orange);
+            border: none;
+            font-family: 'Fredoka One';
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, .2);
+            transition: transform .2s;
+        }
+
+        .install-btn:active {
+            transform: scale(.95);
+        }
+
+        .install-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, .7);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+        }
+
+        /* ── OFFLINE TOAST ── */
+        #offline-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: #fff;
+            border: 1.5px solid rgba(255, 255, 255, .15);
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+            z-index: 9998;
+            transition: transform .4s ease, opacity .4s ease;
+            opacity: 0;
+            white-space: nowrap;
+        }
+
+        #offline-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* ── BLOBS ── */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(70px);
+            pointer-events: none;
+            z-index: 0;
+            animation: floatBlob 8s ease-in-out infinite;
+        }
+
+        .blob1 {
+            width: 320px;
+            height: 320px;
+            background: rgba(255, 200, 50, .16);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .blob2 {
+            width: 280px;
+            height: 280px;
+            background: rgba(100, 180, 255, .16);
+            bottom: -80px;
+            right: -80px;
+            animation-delay: -3s;
+        }
+
+        .blob3 {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 100, 180, .13);
+            top: 45%;
+            left: 55%;
+            animation-delay: -5s;
+        }
+
+        @keyframes floatBlob {
+
+            0%,
+            100% {
+                transform: translate(0, 0)scale(1);
+            }
+
+            50% {
+                transform: translate(20px, -20px)scale(1.08);
+            }
+        }
+
+        /* ── SCREENS ── */
+        .screen {
+            display: none;
+            animation: fadeSlide .45s ease forwards;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(26px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(.88);
+            }
+
+            70% {
+                transform: scale(1.04);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ── CARD ── */
+        .quiz-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1.5px solid var(--border);
+            border-radius: 28px;
+            padding: 32px 28px 36px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 28px 70px rgba(0, 0, 0, .5);
+            max-width: 500px;
+            width: 100%;
+            margin: auto;
+        }
+
+        /* ── LOGO ── */
+        .logo-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 42px;
+            background: linear-gradient(135deg, #FFD700, #FF6B35, #FF1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        .logo-icon {
+            font-size: 40px;
+            display: inline-block;
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+
+        @keyframes floatIcon {
+
+            0%,
+            100% {
+                transform: translateY(0)rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px)rotate(15deg);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, .6);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* ── SECTION LABEL ── */
+        .sec-label {
+            font-family: 'Fredoka One';
+            font-size: 15px;
+            color: rgba(255, 255, 255, .85);
+            margin: 20px 0 10px;
+            letter-spacing: .5px;
+        }
+
+        /* ── CATEGORY ── */
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .cat-chip {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 13px 6px;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-family: 'Nunito';
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, .85);
+            color: #333;
+            transition: all .22s ease;
+        }
+
+        .cat-chip .cat-icon {
+            font-size: 22px;
+        }
+
+        .cat-chip:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, .2);
+        }
+
+        .cat-chip.selected {
+            background: linear-gradient(135deg, var(--orange), var(--orange2));
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 5px 18px rgba(255, 107, 53, .45);
+            transform: scale(1.04);
+        }
+
+        /* ── PILLS ── */
+        .pill-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pill-btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 10px 8px;
+            border-radius: 14px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-family: 'Fredoka One';
+            font-size: 15px;
+            background: rgba(255, 255, 255, .8);
+            color: #555;
+            transition: all .2s ease;
+        }
+
+        .pill-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .pill-btn.sel-diff-easy {
+            background: #d4f5d4;
+            color: #1a7a1a;
+            border-color: #4caf50;
+            transform: scale(1.06);
+        }
+
+        .pill-btn.sel-diff-medium {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffc107;
+            transform: scale(1.06);
+        }
+
+        .pill-btn.sel-diff-hard {
+            background: #fde2e2;
+            color: #842029;
+            border-color: #f44336;
+            transform: scale(1.06);
+        }
+
+        .pill-btn.sel-count {
+            background: linear-gradient(135deg, #6c63ff, #a78bfa);
+            color: #fff;
+            border-color: #6c63ff;
+            transform: scale(1.06);
+        }
+
+        .pill-btn.sel-time {
+            background: linear-gradient(135deg, #06b6d4, #38bdf8);
+            color: #fff;
+            border-color: #06b6d4;
+            transform: scale(1.06);
+        }
+
+        /* ── START BUTTON ── */
+        .start-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 20px;
+            border: none;
+            background: linear-gradient(135deg, var(--orange), var(--orange2));
+            color: #fff;
+            font-family: 'Fredoka One';
+            font-size: 20px;
+            cursor: pointer;
+            margin-top: 28px;
+            letter-spacing: .5px;
+            box-shadow: 0 6px 22px rgba(255, 107, 53, .38);
+            transition: all .22s ease;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 34px rgba(255, 107, 53, .55);
+        }
+
+        .start-btn:active {
+            transform: scale(.97);
+        }
+
+        /* ── QUIZ HEADER ── */
+        .quiz-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .score-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, .1);
+            padding: 6px 18px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(255, 255, 255, .15);
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, .6);
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .score-val {
+            font-family: 'Fredoka One';
+            font-size: 24px;
+            color: var(--gold);
+        }
+
+        .q-counter {
+            font-family: 'Fredoka One';
+            font-size: 20px;
+            color: #fff;
+        }
+
+        /* ── PROGRESS ── */
+        .prog-track {
+            height: 7px;
+            background: rgba(255, 255, 255, .12);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .prog-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6c63ff, #ff6b9d);
+            border-radius: 99px;
+            transition: width .5s ease;
+        }
+
+        /* ── TIMER ── */
+        .timer-wrap {
+            position: relative;
+            width: 58px;
+            height: 58px;
+            flex-shrink: 0;
+        }
+
+        .timer-wrap svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: rotate(-90deg);
+        }
+
+        .timer-num {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka One';
+            font-size: 19px;
+            color: var(--green);
+            transition: color .3s;
+        }
+
+        .timer-num.warn {
+            color: var(--amber);
+            animation: pulse .6s infinite;
+        }
+
+        .timer-num.danger {
+            color: var(--red);
+            animation: pulse .4s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.18)
+            }
+        }
+
+        /* ── CAT BADGE ── */
+        .cat-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .1);
+            color: rgba(255, 255, 255, .8);
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 99px;
+            margin-bottom: 14px;
+            letter-spacing: .5px;
+        }
+
+        /* ── QUESTION ── */
+        .question-box {
+            background: rgba(255, 255, 255, .08);
+            border-radius: 20px;
+            padding: 20px 18px;
+            margin-bottom: 16px;
+            border: 1.5px solid rgba(255, 255, 255, .1);
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.55;
+        }
+
+        /* ── OPTIONS ── */
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 16px;
+            border: 2px solid rgba(255, 255, 255, .45);
+            background: rgba(255, 255, 255, .92);
+            color: #222;
+            font-family: 'Nunito';
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            margin-bottom: 10px;
+            transition: all .24s ease;
+            animation: fadeSlide .4s ease both;
+        }
+
+        .option-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: scale(.97);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .opt-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, .1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka One';
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .opt-text {
+            flex: 1;
+        }
+
+        .opt-icon {
+            font-size: 18px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(135deg, #22c55e, #4ade80) !important;
+            color: #fff !important;
+            border-color: #16a34a !important;
+        }
+
+        .option-btn.wrong {
+            background: linear-gradient(135deg, #ef4444, #f87171) !important;
+            color: #fff !important;
+            border-color: #dc2626 !important;
+        }
+
+        .option-btn.dimmed {
+            background: rgba(255, 255, 255, .45) !important;
+            color: #aaa !important;
+            border-color: transparent !important;
+        }
+
+        /* ── RESULTS ── */
+        .results-card {
+            animation: popIn .5s ease forwards;
+        }
+
+        .trophy-circle {
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            border: 2.5px solid rgba(255, 255, 255, .2);
+            font-size: 52px;
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+
+        .perf-msg {
+            font-family: 'Fredoka One';
+            font-size: 30px;
+        }
+
+        .perf-sub {
+            color: rgba(255, 255, 255, .65);
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 16px;
+            padding: 14px 8px;
+            text-align: center;
+            border: 2px solid;
+        }
+
+        .stat-icon {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .stat-val {
+            font-family: 'Fredoka One';
+            font-size: 28px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, .7);
+            font-weight: 700;
+        }
+
+        .quiz-info {
+            color: rgba(255, 255, 255, .75);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width:480px) {
+            .quiz-card {
+                padding: 22px 16px 28px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .option-btn {
+                font-size: 14px;
+                padding: 11px 13px;
+            }
+
+            .logo-text {
+                font-size: 34px;
+            }
+
+            .cat-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media(max-width:360px) {
+            .cat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .25);
+            border-radius: 3px;
+        }
+
+        /* Safe area for notched phones */
+        .quiz-wrapper {
+            padding-top: max(16px, env(safe-area-inset-top));
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── INSTALL BANNER ── -->
+    <div id="install-banner">
+        <div class="install-text">
+            ⚡ FunQuiz
+            <span>Install as app — plays offline too!</span>
+        </div>
+        <button class="install-btn" onclick="installApp()">📲 Install</button>
+        <button class="install-close" onclick="closeBanner()">✕</button>
+    </div>
+
+    <!-- ── OFFLINE TOAST ── -->
+    <div id="offline-toast">📴 You're offline — app still works!</div>
+
+    <!-- ── DECORATIVE BLOBS ── -->
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+
+    <div class="container quiz-wrapper d-flex justify-content-center align-items-start"
+        style="min-height:100vh;position:relative;z-index:1;">
+
+        <!-- ══ SETUP SCREEN ══ -->
+        <div id="screen-setup" class="screen active w-100">
+            <div class="quiz-card">
+                <div class="text-center mb-2">
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                        <span class="logo-icon">⚡</span>
+                        <span class="logo-text">FunQuiz</span>
+                    </div>
+                    <p class="tagline">Test your brain. Beat the clock.</p>
+                </div>
+
+                <p class="sec-label">🎯 Choose Topic</p>
+                <div class="cat-grid" id="cat-grid"></div>
+
+                <p class="sec-label">🔥 Difficulty</p>
+                <div class="pill-group" id="diff-group"></div>
+
+                <p class="sec-label">📋 Questions</p>
+                <div class="pill-group" id="count-group"></div>
+
+                <p class="sec-label">⏱️ Time Per Question</p>
+                <div class="pill-group" id="time-group"></div>
+
+                <button class="start-btn" onclick="startQuiz()">🚀 Start Quiz!</button>
+            </div>
+        </div>
+
+        <!-- ══ QUIZ SCREEN ══ -->
+        <div id="screen-quiz" class="screen w-100">
+            <div class="quiz-card">
+                <div class="quiz-header">
+                    <div class="score-box">
+                        <span class="score-label">SCORE</span>
+                        <span class="score-val" id="score-val">0</span>
+                    </div>
+                    <span class="q-counter" id="q-counter">Q1 / 10</span>
+                    <div class="timer-wrap">
+                        <svg width="58" height="58" viewBox="0 0 58 58">
+                            <circle cx="29" cy="29" r="23" fill="none" stroke="rgba(255,255,255,.12)"
+                                stroke-width="5" />
+                            <circle id="timer-ring" cx="29" cy="29" r="23" fill="none" stroke="#22c55e" stroke-width="5"
+                                stroke-linecap="round" stroke-dasharray="144.51" stroke-dashoffset="0"
+                                style="transition:stroke-dashoffset .9s linear,stroke .3s;transform:rotate(-90deg);transform-origin:29px 29px;" />
+                        </svg>
+                        <div class="timer-num" id="timer-num">20</div>
+                    </div>
+                </div>
+                <div class="prog-track">
+                    <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+                </div>
+                <div class="cat-badge" id="quiz-badge">🌍 General Knowledge</div>
+                <div class="question-box" id="question-box">
+                    <p class="question-text" id="question-text">Loading…</p>
+                </div>
+                <div id="options-list"></div>
+            </div>
+        </div>
+
+        <!-- ══ RESULTS SCREEN ══ -->
+        <div id="screen-results" class="screen w-100">
+            <div class="quiz-card results-card">
+                <div class="text-center mb-2">
+                    <div class="trophy-circle" id="result-trophy"></div>
+                    <h2 class="perf-msg" id="perf-msg"></h2>
+                    <p class="perf-sub" id="perf-sub"></p>
+                </div>
+                <div class="d-flex justify-content-center my-4">
+                    <svg width="140" height="140" viewBox="0 0 140 140">
+                        <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="13" />
+                        <circle id="score-ring" cx="70" cy="70" r="58" fill="none" stroke="#FFD700" stroke-width="13"
+                            stroke-linecap="round" stroke-dasharray="364.42" stroke-dashoffset="364.42"
+                            style="transition:stroke-dashoffset 1.1s ease;" />
+                        <text x="70" y="65" text-anchor="middle" fill="#fff" font-size="28" font-family="'Fredoka One'"
+                            font-weight="bold" id="ring-pct">0%</text>
+                        <text x="70" y="87" text-anchor="middle" fill="rgba(255,255,255,.65)" font-size="13"
+                            font-family="Nunito" id="ring-score">0/0</text>
+                    </svg>
+                </div>
+                <div class="d-flex gap-3 mb-3">
+                    <div class="stat-card" style="border-color:rgba(34,197,94,.35);">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-val" style="color:#22c55e;" id="stat-correct">0</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-card" style="border-color:rgba(239,68,68,.35);">
+                        <div class="stat-icon">❌</div>
+                        <div class="stat-val" style="color:#ef4444;" id="stat-wrong">0</div>
+                        <div class="stat-label">Wrong</div>
+                    </div>
+                    <div class="stat-card" style="border-color:rgba(245,158,11,.35);">
+                        <div class="stat-icon">⏭️</div>
+                        <div class="stat-val" style="color:#f59e0b;" id="stat-skipped">0</div>
+                        <div class="stat-label">Skipped</div>
+                    </div>
+                </div>
+                <div class="quiz-info d-flex justify-content-center gap-3 mb-1" id="result-info"></div>
+                <button class="start-btn mt-3" onclick="playAgain()">🔄 Play Again</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ══════════════════════════════════════════════
+        //  PWA: Register Service Worker
+        // ══════════════════════════════════════════════
+        let deferredPrompt = null;
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('✅ SW registered:', reg.scope))
+                    .catch(err => console.log('SW error:', err));
+            });
+        }
+
+        // Capture install prompt
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-banner').classList.add('show');
+        });
+
+        // Hide banner after install
+        window.addEventListener('appinstalled', () => {
+            closeBanner();
+            showToast('🎉 FunQuiz installed successfully!');
+        });
+
+        function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(choice => {
+                if (choice.outcome === 'accepted') closeBanner();
+                deferredPrompt = null;
+            });
+        }
+        function closeBanner() {
+            document.getElementById('install-banner').classList.remove('show');
+        }
+
+        // Offline / Online detection
+        function showToast(msg) {
+            const t = document.getElementById('offline-toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+        window.addEventListener('offline', () => showToast('📴 Offline — App still works!'));
+        window.addEventListener('online', () => showToast('✅ Back online!'));
+
+        // ══════════════════════════════════════════════
+        //  QUIZ DATA
+        // ══════════════════════════════════════════════
+        const QUESTIONS = {
+            "General Knowledge": {
+                easy: [
+                    { q: "What is the capital of France?", opts: ["Berlin", "Madrid", "Paris", "Rome"], ans: 2 },
+                    { q: "How many continents are there?", opts: ["5", "6", "7", "8"], ans: 2 },
+                    { q: "What color is the sky on a clear day?", opts: ["Green", "Blue", "Red", "Yellow"], ans: 1 },
+                    { q: "Which planet is known as the Red Planet?", opts: ["Venus", "Jupiter", "Saturn", "Mars"], ans: 3 },
+                    { q: "How many days are in a week?", opts: ["5", "6", "7", "8"], ans: 2 },
+                ],
+                medium: [
+                    { q: "What is the largest ocean on Earth?", opts: ["Atlantic", "Indian", "Arctic", "Pacific"], ans: 3 },
+                    { q: "Which language has the most native speakers?", opts: ["English", "Mandarin Chinese", "Spanish", "Hindi"], ans: 1 },
+                    { q: "Which country has the largest population?", opts: ["India", "USA", "China", "Russia"], ans: 0 },
+                    { q: "Chemical symbol for Gold?", opts: ["Go", "Gd", "Au", "Ag"], ans: 2 },
+                    { q: "How many bones in the adult human body?", opts: ["186", "206", "216", "226"], ans: 1 },
+                ],
+                hard: [
+                    { q: "Year the United Nations was founded?", opts: ["1942", "1945", "1948", "1950"], ans: 1 },
+                    { q: "Which country has the most time zones?", opts: ["Russia", "USA", "China", "France"], ans: 3 },
+                    { q: "What is the smallest country in the world?", opts: ["Monaco", "San Marino", "Vatican City", "Liechtenstein"], ans: 2 },
+                    { q: "Who painted the Mona Lisa?", opts: ["Michelangelo", "Raphael", "Leonardo da Vinci", "Donatello"], ans: 2 },
+                    { q: "What is the world's longest river?", opts: ["Amazon", "Nile", "Yangtze", "Mississippi"], ans: 1 },
+                ],
+            },
+            "Science": {
+                easy: [
+                    { q: "What gas do plants absorb?", opts: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"], ans: 2 },
+                    { q: "What is H2O?", opts: ["Salt", "Sugar", "Water", "Acid"], ans: 2 },
+                    { q: "How many legs does a spider have?", opts: ["6", "8", "10", "12"], ans: 1 },
+                    { q: "Center of an atom?", opts: ["Electron", "Proton", "Nucleus", "Neutron"], ans: 2 },
+                    { q: "Closest planet to the Sun?", opts: ["Venus", "Earth", "Mars", "Mercury"], ans: 3 },
+                ],
+                medium: [
+                    { q: "Speed of light (approx)?", opts: ["100,000 km/s", "200,000 km/s", "300,000 km/s", "400,000 km/s"], ans: 2 },
+                    { q: "Powerhouse of the cell?", opts: ["Nucleus", "Ribosome", "Mitochondria", "Golgi Body"], ans: 2 },
+                    { q: "Force that keeps planets in orbit?", opts: ["Magnetism", "Gravity", "Friction", "Electricity"], ans: 1 },
+                    { q: "Atomic number of Carbon?", opts: ["4", "6", "8", "12"], ans: 1 },
+                    { q: "What type of wave is sound?", opts: ["Transverse", "Electromagnetic", "Longitudinal", "Surface"], ans: 2 },
+                ],
+                hard: [
+                    { q: "Higgs Boson is also called?", opts: ["God Particle", "Dark Matter", "Quantum Bit", "Neutrino"], ans: 0 },
+                    { q: "Half-life of Carbon-14?", opts: ["1,500 years", "3,700 years", "5,730 years", "10,000 years"], ans: 2 },
+                    { q: "Who proposed general relativity?", opts: ["Newton", "Bohr", "Einstein", "Hawking"], ans: 2 },
+                    { q: "Process by which rocks break down by weather?", opts: ["Erosion", "Weathering", "Sedimentation", "Metamorphism"], ans: 1 },
+                    { q: "DNA stands for?", opts: ["Deoxyribonucleic Acid", "Diribose Nucleic Acid", "Deoxyribose Nitrogen Acid", "None"], ans: 0 },
+                ],
+            },
+            "History": {
+                easy: [
+                    { q: "First US President?", opts: ["Abraham Lincoln", "Thomas Jefferson", "George Washington", "John Adams"], ans: 2 },
+                    { q: "World War II ended in?", opts: ["1943", "1944", "1945", "1946"], ans: 2 },
+                    { q: "Ancient wonder located in Egypt?", opts: ["Colosseum", "Pyramids of Giza", "Hanging Gardens", "Parthenon"], ans: 1 },
+                    { q: "Empire ruled by Julius Caesar?", opts: ["Greek", "Ottoman", "Roman", "Byzantine"], ans: 2 },
+                    { q: "Great Wall was built in?", opts: ["Japan", "India", "China", "Korea"], ans: 2 },
+                ],
+                medium: [
+                    { q: "Who discovered America in 1492?", opts: ["Vasco da Gama", "Ferdinand Magellan", "Christopher Columbus", "Amerigo Vespucci"], ans: 2 },
+                    { q: "French Revolution began in?", opts: ["1776", "1789", "1799", "1804"], ans: 1 },
+                    { q: "Country NOT Allied in WWII?", opts: ["USA", "UK", "Germany", "USSR"], ans: 2 },
+                    { q: "First man to walk on the Moon?", opts: ["Buzz Aldrin", "Neil Armstrong", "Yuri Gagarin", "John Glenn"], ans: 1 },
+                    { q: "Berlin Wall fell in?", opts: ["1987", "1988", "1989", "1990"], ans: 2 },
+                ],
+                hard: [
+                    { q: "Treaty of Versailles ended which war?", opts: ["WWI", "WWII", "Korean War", "Crimean War"], ans: 0 },
+                    { q: "Last pharaoh of ancient Egypt?", opts: ["Nefertiti", "Cleopatra VII", "Tutankhamun", "Ramesses II"], ans: 1 },
+                    { q: "Magna Carta was signed in?", opts: ["1066", "1215", "1348", "1453"], ans: 1 },
+                    { q: "Which civilization built Machu Picchu?", opts: ["Aztec", "Maya", "Inca", "Olmec"], ans: 2 },
+                    { q: "Who led the Cuban Revolution?", opts: ["Che Guevara", "Fidel Castro", "Raúl Castro", "Fulgencio Batista"], ans: 1 },
+                ],
+            },
+            "Sports": {
+                easy: [
+                    { q: "Players on a soccer team?", opts: ["9", "10", "11", "12"], ans: 2 },
+                    { q: "Rings on the Olympic flag?", opts: ["4", "5", "6", "7"], ans: 1 },
+                    { q: "Sport played at Wimbledon?", opts: ["Cricket", "Golf", "Tennis", "Polo"], ans: 2 },
+                    { q: "Points for a touchdown?", opts: ["3", "6", "7", "2"], ans: 1 },
+                    { q: "Which country invented cricket?", opts: ["Australia", "India", "England", "South Africa"], ans: 2 },
+                ],
+                medium: [
+                    { q: "Most Grand Slam titles (men)?", opts: ["Federer", "Nadal", "Djokovic", "Sampras"], ans: 2 },
+                    { q: "Most FIFA World Cup wins?", opts: ["Germany", "Argentina", "Italy", "Brazil"], ans: 3 },
+                    { q: "Length of a marathon?", opts: ["40 km", "42.195 km", "44 km", "45 km"], ans: 1 },
+                    { q: "Highest single bowling frame score?", opts: ["10", "20", "30", "300"], ans: 2 },
+                    { q: "A free throw in basketball is worth?", opts: ["1", "2", "3", "0"], ans: 0 },
+                ],
+                hard: [
+                    { q: "Most Olympic gold medals?", opts: ["Carl Lewis", "Usain Bolt", "Michael Phelps", "Larisa Latynina"], ans: 2 },
+                    { q: "First year women competed in Olympics?", opts: ["1896", "1900", "1920", "1928"], ans: 1 },
+                    { q: "Basketball hoop diameter in inches?", opts: ["16", "18", "20", "22"], ans: 1 },
+                    { q: "Most major golf championships?", opts: ["Tiger Woods", "Jack Nicklaus", "Arnold Palmer", "Gary Player"], ans: 1 },
+                    { q: "Players on a polo team?", opts: ["2", "3", "4", "5"], ans: 2 },
+                ],
+            },
+            "Movies": {
+                easy: [
+                    { q: "Who played Iron Man in MCU?", opts: ["Chris Evans", "Robert Downey Jr.", "Chris Hemsworth", "Mark Ruffalo"], ans: 1 },
+                    { q: "'To infinity and beyond!' is from?", opts: ["Monsters Inc.", "Finding Nemo", "Toy Story", "WALL-E"], ans: 2 },
+                    { q: "Highest-grossing film of all time?", opts: ["Titanic", "Avengers: Endgame", "Avatar", "Star Wars"], ans: 2 },
+                    { q: "Simba's father in The Lion King?", opts: ["Scar", "Mufasa", "Rafiki", "Zazu"], ans: 1 },
+                    { q: "Director of Jurassic Park?", opts: ["James Cameron", "George Lucas", "Steven Spielberg", "Tim Burton"], ans: 2 },
+                ],
+                medium: [
+                    { q: "First Best Picture Academy Award?", opts: ["Wings", "Sunrise", "7th Heaven", "The Jazz Singer"], ans: 0 },
+                    { q: "Joker in The Dark Knight?", opts: ["Joaquin Phoenix", "Jack Nicholson", "Heath Ledger", "Jared Leto"], ans: 2 },
+                    { q: "Original Star Wars release year?", opts: ["1975", "1977", "1979", "1981"], ans: 1 },
+                    { q: "Movie with Bates Motel shower scene?", opts: ["The Shining", "Psycho", "Halloween", "Scream"], ans: 1 },
+                    { q: "Forrest Gump: life is like a box of…?", opts: ["Donuts", "Chocolates", "Surprises", "Dreams"], ans: 1 },
+                ],
+                hard: [
+                    { q: "Film with most Academy Awards?", opts: ["Titanic", "LOTR: Return of the King", "Ben-Hur", "All tied at 11"], ans: 3 },
+                    { q: "First feature-length animated film?", opts: ["Bambi", "Cinderella", "Snow White and the Seven Dwarfs", "Pinocchio"], ans: 2 },
+                    { q: "Music composer for Schindler's List?", opts: ["Hans Zimmer", "John Williams", "Ennio Morricone", "Bernard Herrmann"], ans: 1 },
+                    { q: "'Lost in Translation' is set in?", opts: ["Beijing", "Seoul", "Tokyo", "Shanghai"], ans: 2 },
+                    { q: "Director of 2001: A Space Odyssey?", opts: ["Ridley Scott", "Steven Spielberg", "Stanley Kubrick", "David Lynch"], ans: 2 },
+                ],
+            },
+            "Technology": {
+                easy: [
+                    { q: "CPU stands for?", opts: ["Central Processing Unit", "Computer Personal Unit", "Central Program Utility", "Core Processing Unit"], ans: 0 },
+                    { q: "Company that makes iPhone?", opts: ["Samsung", "Google", "Apple", "Microsoft"], ans: 2 },
+                    { q: "'www' stands for?", opts: ["World Wide Web", "Wide World Web", "World Web Wide", "Web World Wide"], ans: 0 },
+                    { q: "USB stands for?", opts: ["Universal Serial Bus", "United System Board", "Universal System Base", "Unified Serial Bus"], ans: 0 },
+                    { q: "Language known for snake logo?", opts: ["Java", "Ruby", "Python", "Perl"], ans: 2 },
+                ],
+                medium: [
+                    { q: "Year first iPhone released?", opts: ["2005", "2006", "2007", "2008"], ans: 2 },
+                    { q: "Company that developed Android?", opts: ["Apple", "Microsoft", "Samsung", "Google"], ans: 3 },
+                    { q: "Most used language for web dev?", opts: ["Python", "Java", "JavaScript", "C++"], ans: 2 },
+                    { q: "HTML stands for?", opts: ["HyperText Markup Language", "High Tech Modern Language", "HyperText Modern Links", "High Transfer Markup Language"], ans: 0 },
+                    { q: "Father of the World Wide Web?", opts: ["Bill Gates", "Steve Jobs", "Tim Berners-Lee", "Linus Torvalds"], ans: 2 },
+                ],
+                hard: [
+                    { q: "TCP/IP stands for?", opts: ["Transfer Control Protocol/Internet Protocol", "Transmission Control Protocol/Internet Protocol", "Technical Control Protocol/Internet Provider", "Transfer Core Protocol/Internet Protocol"], ans: 1 },
+                    { q: "Year Python was created?", opts: ["1985", "1989", "1991", "1995"], ans: 2 },
+                    { q: "Time complexity of binary search?", opts: ["O(n)", "O(n²)", "O(log n)", "O(1)"], ans: 2 },
+                    { q: "Co-founder of Apple with Steve Jobs?", opts: ["Bill Gates", "Steve Wozniak", "Paul Allen", "Larry Page"], ans: 1 },
+                    { q: "GPU stands for?", opts: ["General Processing Unit", "Graphic Program Unit", "Graphics Processing Unit", "Global Processing Unit"], ans: 2 },
+                ],
+            },
+        };
+
+        const CAT_EMOJIS = {
+            "General Knowledge": "🌍", "Science": "🔬", "History": "🏛️",
+            "Sports": "⚽", "Movies": "🎬", "Technology": "💻"
+        };
+        const CATEGORIES = Object.keys(QUESTIONS);
+        const DIFFICULTIES = ["easy", "medium", "hard"];
+        const COUNTS = [5, 10, 15, 20];
+        const TIMES = [10, 20, 30];
+
+        // ══ STATE ══
+        let cfg = { category: "General Knowledge", difficulty: "medium", count: 10, time: 20 };
+        let questions = [], current = 0, score = 0, results = [], timerInterval = null, timeLeft = 0;
+
+        // ══ BUILD SETUP ══
+        function buildSetup() {
+            document.getElementById('cat-grid').innerHTML = CATEGORIES.map(c => `
+    <button class="cat-chip${c === cfg.category ? ' selected' : ''}" onclick="selectCat('${c}')">
+      <span class="cat-icon">${CAT_EMOJIS[c]}</span><span>${c}</span>
+    </button>`).join('');
+            document.getElementById('diff-group').innerHTML = DIFFICULTIES.map(d => `
+    <button class="pill-btn${cfg.difficulty === d ? ' sel-diff-' + d : ''}" onclick="selectDiff('${d}')">${d.charAt(0).toUpperCase() + d.slice(1)}</button>`).join('');
+            document.getElementById('count-group').innerHTML = COUNTS.map(n => `
+    <button class="pill-btn${cfg.count === n ? ' sel-count' : ''}" onclick="selectCount(${n})">${n} Qs</button>`).join('');
+            document.getElementById('time-group').innerHTML = TIMES.map(t => `
+    <button class="pill-btn${cfg.time === t ? ' sel-time' : ''}" onclick="selectTime(${t})">${t}s</button>`).join('');
+        }
+        function selectCat(c) { cfg.category = c; buildSetup(); }
+        function selectDiff(d) { cfg.difficulty = d; buildSetup(); }
+        function selectCount(n) { cfg.count = n; buildSetup(); }
+        function selectTime(t) { cfg.time = t; buildSetup(); }
+
+        // ══ HELPERS ══
+        function shuffle(a) { return [...a].sort(() => Math.random() - .5); }
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const el = document.getElementById('screen-' + id);
+            el.classList.add('active');
+            el.style.animation = 'none'; el.offsetHeight; el.style.animation = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ══ QUIZ LOGIC ══
+        function startQuiz() {
+            const pool = QUESTIONS[cfg.category]?.[cfg.difficulty] || [];
+            questions = shuffle(pool).slice(0, Math.min(cfg.count, pool.length));
+            if (!questions.length) { alert("No questions available!"); return; }
+            current = 0; score = 0; results = new Array(questions.length).fill(null);
+            showScreen('quiz'); renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[current];
+            document.getElementById('score-val').textContent = score;
+            document.getElementById('q-counter').textContent = `Q${current + 1} / ${questions.length}`;
+            document.getElementById('prog-fill').style.width = `${(current / questions.length) * 100}%`;
+            document.getElementById('quiz-badge').textContent = `${CAT_EMOJIS[cfg.category]} ${cfg.category}`;
+            const qBox = document.getElementById('question-box');
+            qBox.style.animation = 'none'; qBox.offsetHeight; qBox.style.animation = 'fadeSlide .4s ease forwards';
+            document.getElementById('question-text').textContent = q.q;
+            const letters = ['A', 'B', 'C', 'D'];
+            document.getElementById('options-list').innerHTML = q.opts.map((opt, i) => `
+    <button class="option-btn" id="opt-${i}" onclick="selectOption(${i})" style="animation-delay:${i * .07}s">
+      <span class="opt-letter">${letters[i]}</span>
+      <span class="opt-text">${opt}</span>
+      <span class="opt-icon" id="opt-icon-${i}"></span>
+    </button>`).join('');
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = cfg.time; updateTimerUI();
+            timerInterval = setInterval(() => {
+                timeLeft--; updateTimerUI();
+                if (timeLeft <= 0) { clearInterval(timerInterval); advance(-1); }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const circ = 2 * Math.PI * 23;
+            const ring = document.getElementById('timer-ring');
+            const num = document.getElementById('timer-num');
+            ring.style.strokeDashoffset = circ * (1 - timeLeft / cfg.time);
+            const color = timeLeft <= 5 ? '#ef4444' : timeLeft <= 10 ? '#f59e0b' : '#22c55e';
+            ring.style.stroke = color;
+            num.textContent = timeLeft;
+            num.className = 'timer-num' + (timeLeft <= 5 ? ' danger' : timeLeft <= 10 ? ' warn' : '');
+        }
+
+        function selectOption(i) { clearInterval(timerInterval); advance(i); }
+
+        function advance(chosen) {
+            const q = questions[current];
+            results[current] = chosen;
+            if (chosen === q.ans) score++;
+            document.querySelectorAll('.option-btn').forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === q.ans) { btn.classList.add('correct'); document.getElementById(`opt-icon-${i}`).textContent = '✓'; }
+                else if (i === chosen && chosen !== q.ans) { btn.classList.add('wrong'); document.getElementById(`opt-icon-${i}`).textContent = '✗'; }
+                else { btn.classList.add('dimmed'); }
+            });
+            document.getElementById('score-val').textContent = score;
+            setTimeout(() => {
+                if (current + 1 < questions.length) { current++; renderQuestion(); }
+                else { showResults(); }
+            }, 950);
+        }
+
+        // ══ RESULTS ══
+        function showResults() {
+            clearInterval(timerInterval);
+            const total = questions.length;
+            const correct = results.filter((r, i) => r !== null && r === questions[i].ans).length;
+            const wrong = results.filter((r, i) => r !== null && r !== -1 && r !== questions[i].ans).length;
+            const skipped = results.filter(r => r === -1 || r === null).length;
+            const pct = total ? Math.round((correct / total) * 100) : 0;
+            const perfs = [
+                { min: 80, emoji: '🏆', msg: 'Outstanding!', sub: "You're a genius!", color: '#FFD700' },
+                { min: 60, emoji: '🎉', msg: 'Great Job!', sub: 'Well done, keep it up!', color: '#4CAF50' },
+                { min: 40, emoji: '👍', msg: 'Not Bad!', sub: 'A little more practice!', color: '#FF9800' },
+                { min: 0, emoji: '💪', msg: 'Keep Trying!', sub: 'Practice makes perfect!', color: '#F44336' },
+            ];
+            const perf = perfs.find(p => pct >= p.min);
+            document.getElementById('result-trophy').textContent = perf.emoji;
+            document.getElementById('perf-msg').textContent = perf.msg;
+            document.getElementById('perf-msg').style.color = perf.color;
+            document.getElementById('perf-sub').textContent = perf.sub;
+            document.getElementById('stat-correct').textContent = correct;
+            document.getElementById('stat-wrong').textContent = wrong;
+            document.getElementById('stat-skipped').textContent = skipped;
+            document.getElementById('ring-pct').textContent = pct + '%';
+            document.getElementById('ring-score').textContent = `${correct}/${total}`;
+            const diffColors = { easy: '#4caf50', medium: '#ffc107', hard: '#f44336' };
+            document.getElementById('result-info').innerHTML =
+                `<span>${CAT_EMOJIS[cfg.category]} ${cfg.category}</span>
+     <span style="opacity:.5">•</span>
+     <span style="color:${diffColors[cfg.difficulty]};font-weight:800;text-transform:capitalize">${cfg.difficulty}</span>`;
+            showScreen('results');
+            setTimeout(() => {
+                const ring = document.getElementById('score-ring');
+                ring.style.stroke = perf.color;
+                ring.style.strokeDashoffset = 2 * Math.PI * 58 * (1 - pct / 100);
+            }, 120);
+        }
+
+        function playAgain() { showScreen('setup'); buildSetup(); }
+
+        // ══ INIT ══
+        buildSetup();
+    </script>
+</body>
+
+</html>
